@@ -1,0 +1,34 @@
+# AdminLTE
+/dist/
+/plugins/
+
+# Node.js
+/node_modules/
+/package-lock.json
+
+# Composer
+/vendor/
+
+# Compiled assets
+/public/css/
+/public/js/
+
+# Logs and databases
+/storage/logs/
+/storage/app/*.log
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/database/*.sqlite
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Environment variables
+.env
+.env.*
+
+# Miscellaneous
+Thumbs.db
+.DS_Store

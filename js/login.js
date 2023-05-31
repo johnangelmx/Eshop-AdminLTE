@@ -38,7 +38,7 @@ const verifyLogin = async () => {
             localStorage.setItem('resultado', JSON.stringify(data));
 
             toastr.success('¡Operación exitosa!', 'Éxito');
-            window.location.href = "../pages/dashboard.html";
+            window.location.assign("../pages/dashboard.html");
         }
     } catch (error) {
         toastr["error"]("Por favor verifique sus credenciales", "Ingreso Invalido")
