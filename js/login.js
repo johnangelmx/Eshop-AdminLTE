@@ -33,10 +33,10 @@ const verifyLogin = async () => {
 
         if (resp.ok) {
             const data = await resp.json();
-            localStorage.setItem('resultado', JSON.stringify(data));
+            localStorage.setItem('sessionId', JSON.stringify(data));
 
             toastr.success('¡Operación exitosa!', 'Éxito');
-            window.location.assign("../pages/dashboard.html");
+            window.location.href = "../../PanelVM/pages/dashboard.html";
         }
     } catch (error) {
         toastr["error"]("Por favor verifique sus credenciales", "Ingreso Invalido")
