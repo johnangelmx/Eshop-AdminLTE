@@ -1,9 +1,8 @@
 // DOM ⬇
-let inEmail = document.getElementById("inEmail"),
-    inPassword = document.getElementById("inPassword"),
+let inEmail = document.getElementById("inEmail"), inPassword = document.getElementById("inPassword"),
     btnLogin = document.getElementById("btnLogin");
 // Variables
-const URL = "https://genmx-viandamarket-back-production.up.railway.app"
+
 // Regex ⬇
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])([^\s]){8,20}$/;
@@ -22,11 +21,10 @@ const regexPass = (email, password) => {
 }
 const verifyLogin = async () => {
     let body = {
-        correo: `${inEmail.value}`,
-        contrasena: `${inPassword.value}`
+        correo: `${inEmail.value}`, contrasena: `${inPassword.value}`
     };
     try {
-        const resp = await fetch(`${URL}/api/login/`, {
+        const resp = await fetch(`/api/login/`, {
             method: 'POST',
             headers: new Headers({'Content-type': 'application/json'}),
             mode: 'cors',
