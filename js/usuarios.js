@@ -5,7 +5,9 @@ const modal = document.getElementById('modal-lg'),
     inputDomicilio = document.getElementById("inputDomicilio"),
     inputNombres = document.getElementById("inputNombres"),
     inputApellidos = document.getElementById("inputApellidos"),
-    inputCorreo = document.getElementById("inputCorreo");
+    inputCorreo = document.getElementById("inputCorreo"),
+    check = document.getElementById("check"),
+    stop = document.getElementById("stop");
 // Verificacion de Inicio Unico
 const
     data = JSON.parse(localStorage.getItem('sessionId'))
@@ -99,6 +101,12 @@ const listUsers = async () => {
 
         let content = ``;
         users.forEach((user, index) => {
+            let btnStatus;
+            if (user.status) {
+                btnStatus = `<button data-identifier="${user.id}" class='btn btn-sm btn-success' id="check"><i class='fas fa-check'></i></button>`
+            } else {
+                btnStatus = `<button data-identifier="${user.id}" class='btn btn-sm btn-danger' id="stop"><i class='fas fa-stop'></i></button>`
+            }
             content += `
             <tr>
                 <td>${user.id}</td>
@@ -106,6 +114,8 @@ const listUsers = async () => {
                 <td>${user.apellidos}</td>
                 <td>${user.correo}</td>
                 <td>${user.domicilio}</td>
+                <td>${btnStatus}</td>
+                <td>${user.rol}</td>
                 <td>
                     <button data-identifier="${user.id}" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-lg" id="editar"><i class="fas fa-pen"></i></button>
                     <button data-identifier="${user.id}" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal-danger" id="eliminar"><i class="fas fa-trash"></i></button>
@@ -118,104 +128,89 @@ const listUsers = async () => {
         let identifier;
 
         // Agregar eventos utilizando delegación de eventos
-        $('#datatable_users').on('click', '#editar', async function (event) {
+        $('#datatable_users').off('click', '#editar').on('click', '#editar', async function (event) {
             identifier = $(this).data('identifier');
             const response = await fetch(`/api/usuarios/${identifier}`, {
                 headers: {
                     "Authorization": "Bearer: " + data.acessToken
                 }
             });
-            const user = await response.json();
-            inputCorreo.value = user.correo;
-            inputNombres.value = user.nombres;
-            inputApellidos.value = user.apellidos;
-            inputDomicilio.value = user.domicilio;
+            if (response.ok) {
+                const user = await response.json();
+                inputCorreo.value = user.correo;
+                inputNombres.value = user.nombres;
+                inputApellidos.value = user.apellidos;
+                inputDomicilio.value = user.domicilio;
+            } else {
+                redirectLogin();
+            }
+            btnGuardar.addEventListener("click", async () => {
+                    const inputs = [{
+                        regex: regexCorreo,
+                        value: inputCorreo,
+                        errorMessage: "Por favor verifique que el correo esté bien escrito"
+                    },
+                        {
+                            regex: regexNombre,
+                            value: inputNombres,
+                            errorMessage: "Por favor verifique que los nombres estén bien escritos"
+                        },
+                        {
+                            regex: regexApellidos,
+                            value: inputApellidos,
+                            errorMessage: "Por favor verifique que los apellidos estén bien escritos"
+                        }
+                    ];
 
-            // Remover eventos anteriores del botón btnGuardar
-            btnGuardar.removeEventListener("click", guardarCambios);
+                    let isOk = true;
 
-            // Agregar el evento click al botón btnGuardar
-            btnGuardar.addEventListener("click", guardarCambios);
-        });
-
-        // Función para guardar los cambios
-        async function guardarCambios() {
-            const inputs = [{
-                regex: regexCorreo,
-                value: inputCorreo,
-                errorMessage: "Por favor verifique que el correo esté bien escrito"
-            },
-                {
-                    regex: regexNombre,
-                    value: inputNombres,
-                    errorMessage: "Por favor verifique que los nombres estén bien escritos"
-                },
-                {
-                    regex: regexApellidos,
-                    value: inputApellidos,
-                    errorMessage: "Por favor verifique que los apellidos estén bien escritos"
-                }
-            ];
-
-            let isOk = true;
-
-            inputs.forEach(input => {
-                if (!input.regex.test(input.value.value.trim())) {
-                    toastr.remove();
-                    toastr["error"](input.errorMessage, "Guardado inválido");
-                    isOk = false;
-                }
-            });
-
-            if (isOk) {
-                const params = {
-                    domicilio: `${inputDomicilio.value}`,
-                    nombres: `${inputNombres.value}`,
-                    apellidos: `${inputApellidos.value}`,
-                    correo: `${inputCorreo.value}`,
-                };
-
-                const queryParams = new URLSearchParams(params).toString();
-                const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
-                try {
-                    const response = await fetch(urlWithParams, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer: ${data.acessToken}`
+                    inputs.forEach(input => {
+                        if (!input.regex.test(input.value.value.trim())) {
+                            toastr.remove();
+                            toastr["error"](input.errorMessage, "Guardado inválido");
+                            isOk = false;
                         }
                     });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        // Manejar la respuesta exitosa
-                        closeModal();
-                        toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
-                        toastr["success"]("Actualización completada"); // Mostrar el nuevo mensaje de éxito
-                        await recreateDataTable();
-                    } else {
-                        throw new Error('Error en la solicitud PUT');
+                    if (isOk) {
+                        const params = {
+                            domicilio: `${inputDomicilio.value}`,
+                            nombres: `${inputNombres.value}`,
+                            apellidos: `${inputApellidos.value}`,
+                            correo: `${inputCorreo.value}`,
+                        };
+
+                        const queryParams = new URLSearchParams(params).toString();
+                        const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+                        const response = await fetch(urlWithParams, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer: ${data.acessToken}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Manejar la respuesta exitosa
+                            closeModal();
+                            toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
+                            toastr["success"]("Actualización completada"); // Mostrar el nuevo mensaje de éxito
+                            await recreateDataTable();
+                        } else {
+
+                        }
+
                     }
-                } catch (error) {
-                    // Manejar el error
-                    console.error(error);
                 }
-            }
-        }
-
-// Agregar eventos utilizando delegación de eventos
-        $('#datatable_users').on('click', '#eliminar', function (event) {
-            identifier = $(this).data('identifier');
-
-            // Remover eventos anteriores del botón btnModalEliminar
-            btnModalEliminar.removeEventListener("click", eliminarUsuario);
-
-            // Agregar el evento click al botón btnModalEliminar
-            btnModalEliminar.addEventListener("click", eliminarUsuario);
+            )
         });
 
-// Función para eliminar el usuario
-        async function eliminarUsuario() {
-            try {
+
+        // ELIMINAR
+        $('#datatable_users').off('click', '#eliminar').on('click', '#eliminar', async function (event) {
+            identifier = $(this).data('identifier');
+            btnModalEliminar.addEventListener("click", async () => {
                 const response = await fetch(`/api/usuarios/${identifier}`, {
                     method: 'DELETE',
                     headers: {
@@ -224,17 +219,80 @@ const listUsers = async () => {
                 });
 
                 if (response.ok) {
-                    // Eliminación exitosa
                     closeModal();
-                    toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
-                    toastr["success"]("Eliminacion de usuario completada"); // Mostrar el nuevo mensaje de éxito
+                    toastr.remove();
+                    toastr["success"]("Eliminación de usuario completada");
                     await recreateDataTable();
+                } else {
+                    redirectLogin();
                 }
-            } catch (error) {
-                // Manejar el error
-                console.error(error);
+            })
+        });
+
+
+        // Funcion cambiar estatus del usuario a activo
+        $('#datatable_users').off('click', '#check').on('click', '#check', async function (event) {
+            const button = $(this);
+            const identifier = button.data('identifier');
+            const queryParams = new URLSearchParams({status: 'false'});
+            const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+            const response = await fetch(urlWithParams, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer: ${data.acessToken}`
+                }
+            });
+
+            if (response.ok) {
+                toastr.remove();
+                toastr["success"]("Cambio de estatus completado");
+
+                // Actualizar el botón con la clase y el contenido correspondientes
+                button
+                    .removeClass('btn-success')
+                    .addClass('btn-danger')
+                    .attr('id', 'stop')
+                    .html(`<i class='fas fa-stop'></i>`);
+
+                await recreateDataTable();
+            } else {
+                redirectLogin();
             }
-        }
+        });
+
+
+        // Funcion cambiar estatus del usuario a inactivo
+        $('#datatable_users').off('click', '#stop').on('click', '#stop', async function (event) {
+            const button = $(this);
+            const identifier = button.data('identifier');
+            const queryParams = new URLSearchParams({status: 'true'});
+            const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+            const response = await fetch(urlWithParams, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer: ${data.acessToken}`
+                }
+            });
+
+            if (response.ok) {
+                toastr.remove();
+                toastr["success"]("Cambio de estatus completado");
+
+                // Actualizar el botón con la clase y el contenido correspondientes
+                button
+                    .removeClass('btn-danger')
+                    .addClass('btn-success')
+                    .attr('id', 'check')
+                    .html(`<i class='fas fa-check'></i>`);
+
+                await recreateDataTable();
+            } else {
+                redirectLogin();
+            }
+        });
+
 
         tableBody_users.innerHTML = content;
 
@@ -249,6 +307,15 @@ function closeModal() {
     $(modal).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
     $(modalDanger).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
 
+}
+
+// Funcion para redireccionar al login
+function redirectLogin() {
+    toastr.remove();
+    toastr["error"]("Autenticación de perfil inválido, serás redireccionado al inicio de sesión en segundos");
+    setTimeout(() => {
+        window.location.href = "../../PanelVM/index.html"
+    }, 3000);
 }
 
 // --- EVENTOS ---
