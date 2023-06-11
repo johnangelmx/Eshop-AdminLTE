@@ -9,10 +9,10 @@
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
-    <!-- IonIcons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="../css/adminlte.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../plugins/toastr/toastr.min.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -127,12 +127,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>DataTables</h1>
+                        <h1>Tabla Usuarios</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">DataTables</li>
+                            <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+                            <li class="breadcrumb-item active">Usuarios</li>
                         </ol>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">DataTable with default features</h3>
+                                <h3 class="card-title">Tabla con los usuarios registrados</h3>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
@@ -163,16 +163,6 @@
                                     </thead>
                                     <tbody id="tableBody_users">
                                     </tbody>
-                                    <tfoot>
-                                    <tr>
-                                        <th>ID ⬆</th>
-                                        <th>Nombres ⬆</th>
-                                        <th>Apellidos ⬆</th>
-                                        <th>Correo ⬆</th>
-                                        <th>Acciones ⬆</th>
-                                        <th>Opciones ⬆</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                             <!-- /.card-body -->
@@ -184,6 +174,73 @@
                 <!-- /.row -->
             </div>
             <!-- /.container-fluid -->
+            <div class="modal fade" id="modal-lg">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Large Modal</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="inputCorreo">Correo</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa el correo" id="inputCorreo">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputNombres">Nombres</label>
+                                    <input type="text" class="form-control" id="inputNombres"
+                                           placeholder="Nombres">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputApellidos">Apellidos</label>
+                                    <input type="text" class="form-control" id="inputApellidos"
+                                           placeholder="Apellidos">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputDomicilio">Domicilio</label>
+                                    <input type="text" class="form-control" id="inputDomicilio"
+                                           placeholder="Domicilio">
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-primary" id="btnGuardar">Guardar Cambios</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+            <div class="modal fade" id="modal-danger">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-danger">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Eliminacion Absouluta</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Está convencido de eliminar a este usuario, la eliminación es absoluta y no puede
+                                revertirse.</p>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-light" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-outline-light">Eliminar Usuario</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
         </section>
         <!-- /.content -->
     </div>
@@ -216,7 +273,8 @@
 <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE -->
 <script src="../js/adminlte.js"></script>
-
+<!-- Toastr JS -->
+<script src="../plugins/toastr/toastr.min.js" async></script>
 <!-- DataTables  & Plugins -->
 <script src="../plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>

@@ -1,9 +1,17 @@
+// DOM JS
+const modal = document.getElementById('modal-lg');
+
 // Verificacion de Inicio Unico
-let data = JSON.parse(localStorage.getItem('sessionId'))
+const data = JSON.parse(localStorage.getItem('sessionId'))
 if (!data) {
     window.location.href = "../../PanelVM/index.html"
 }
-// Variables para  DataTable
+// Variable REGEX
+const regexName = /^[a-zA-Záéíóúñ][a-záéíóúñ]{1,}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,2}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,1}$/,
+    regexLastNames = /^[a-zA-Záéíóúñ][a-záéíóúñ]{1,}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,2}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,1}$/,
+    regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// Variables para = DataTable
 let dataTable;
 let dataTableIsInitialized = false;
 const dataTableOptions = {
@@ -36,13 +44,30 @@ const dataTableOptions = {
 }
 // Inicializando DataTable
 
-const initDataTable = async () => {
-    if (dataTableIsInitialized) {
-        dataTable.destroy();
+// Función para recrear la DataTable
+async function recreateDataTable() {
+    // Verificar si dataTable es una instancia válida de DataTable
+    if ($.fn.DataTable.isDataTable("#datatable_users")) {
+        // Destruir la instancia existente de DataTable
+        $("#datatable_users").DataTable().destroy();
     }
+
+    // Volver a cargar los datos actualizados en la tabla
     await listUsers();
+
+    // Inicializar una nueva instancia de DataTable con los datos actualizados
     dataTable = $("#datatable_users").DataTable(dataTableOptions).buttons().container().appendTo('#datatable_users_wrapper .col-md-6:eq(0)');
+
+    // Establecer la bandera de inicialización en true
+    dataTableIsInitialized = true;
 }
+
+
+// Inicialización inicial de la DataTable
+const initDataTable = async () => {
+    await recreateDataTable();
+};
+
 
 // Obteniendo Usuario Para Reutilizar sus datos y su acceso
 const obtenerUsuario = async () => {
@@ -54,12 +79,13 @@ const obtenerUsuario = async () => {
     }
     return await resp.json();
 }
+
 // Agregando la información del usuario en la barra de la izquierda
 const addInfoSidebar = async () => {
     let userdata = await obtenerUsuario()
     usuarioPanelDerecho.innerText = `${userdata.nombres} ${userdata.apellidos}`
 }
-// Ingresando Informacion a la tabla
+// Ingresando Información a la tabla
 const listUsers = async () => {
     try {
         const response = await fetch("/api/usuarios/", {headers: {"Authorization": "Bearer: " + data.acessToken}})
@@ -75,20 +101,119 @@ const listUsers = async () => {
                 <td>${user.correo}</td>
                 <td>${user.domicilio}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary"><i class="fas fa-pen"></i></button>
-                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    <button data-identifier="${index + 1}" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-lg" id="editar"><i class="fas fa-pen"></i></button>
+                    <button data-identifier="${index + 1}" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal-danger" id="eliminar"><i class="fas fa-trash"></i></button>
                 </td>
                 
             </tr>
             `
         });
+        // Variable global para almacenar el identificador
+        let identifier;
+
+        // Agregar eventos utilizando delegación de eventos
+        $('#datatable_users').on('click', '#editar', async function (event) {
+            identifier = $(this).data('identifier');
+            const response = await fetch(`/api/usuarios/${identifier}`, {
+                headers: {
+                    "Authorization": "Bearer: " + data.acessToken
+                }
+            });
+            const user = await response.json();
+            inputCorreo.value = user.correo;
+            inputNombres.value = user.nombres;
+            inputApellidos.value = user.apellidos;
+            inputDomicilio.value = user.domicilio;
+
+            // Remover eventos anteriores del botón btnGuardar
+            btnGuardar.removeEventListener("click", guardarCambios);
+
+            // Agregar el evento click al botón btnGuardar
+            btnGuardar.addEventListener("click", guardarCambios);
+        });
+
+        // Función para guardar los cambios
+        async function guardarCambios() {
+            const inputs = [{
+                regex: regexEmail,
+                value: inputCorreo,
+                errorMessage: "Por favor verifique que el correo esté bien escrito"
+            },
+                {
+                    regex: regexName,
+                    value: inputNombres,
+                    errorMessage: "Por favor verifique que los nombres estén bien escritos"
+                },
+                {
+                    regex: regexLastNames,
+                    value: inputApellidos,
+                    errorMessage: "Por favor verifique que los apellidos estén bien escritos"
+                }
+            ];
+
+            let isOk = true;
+
+            inputs.forEach(input => {
+                if (!input.regex.test(input.value.value.trim())) {
+                    toastr.remove();
+                    toastr["error"](input.errorMessage, "Guardado inválido");
+                    isOk = false;
+                }
+            });
+
+            if (isOk) {
+                const params = {
+                    domicilio: `${inputDomicilio.value}`,
+                    nombres: `${inputNombres.value}`,
+                    apellidos: `${inputApellidos.value}`,
+                    correo: `${inputCorreo.value}`,
+                };
+
+                const queryParams = new URLSearchParams(params).toString();
+                const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+                try {
+                    const response = await fetch(urlWithParams, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer: ${data.acessToken}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Manejar la respuesta exitosa
+                        closeModal();
+                        toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
+                        toastr["success"]("Actualización completada"); // Mostrar el nuevo mensaje de éxito
+                        await recreateDataTable();
+                    } else {
+                        throw new Error('Error en la solicitud PUT');
+                    }
+                } catch (error) {
+                    // Manejar el error
+                    console.error(error);
+                }
+            }
+        }
+
+        $('#datatable_users').on('click', '#eliminar', function (event) {
+            const identifier = $(this).data('identifier');
+            console.log(identifier);
+        });
         tableBody_users.innerHTML = content;
 
-    } catch (e) {
+    } catch
+        (e) {
         console.log(e);
     }
 }
 
+// Funcion para cerrar el Modal
+function closeModal() {
+    $(modal).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
+}
+
+// --- EVENTOS ---
 // Cerrar Sesion
 cerrarSesion.addEventListener("click", (e) => {
     e.preventDefault()
@@ -100,3 +225,4 @@ window.addEventListener("load", async () => {
     await addInfoSidebar();
     await initDataTable();
 })
+
