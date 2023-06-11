@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <!-- favicon -->
     <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <!-- Custom JS -->
+    <script src="../js/usuarios.js" defer></script>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -233,7 +235,8 @@
                         </div>
                         <div class="modal-footer justify-content-between">
                             <button type="button" class="btn btn-outline-light" data-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-outline-light">Eliminar Usuario</button>
+                            <button type="button" class="btn btn-outline-light" id="btnModalEliminar">Eliminar Usuario
+                            </button>
                         </div>
                     </div>
                     <!-- /.modal-content -->
@@ -265,8 +268,8 @@
 
 <!-- REQUIRED SCRIPTS -->
 
-<!-- Panel -->
-<script src="../js/usuarios.js"></script>
+<!--&lt;!&ndash; Panel &ndash;&gt;-->
+<!--<script src="../js/usuarios.js"></script>-->
 <!-- jQuery -->
 <script src="../plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap -->

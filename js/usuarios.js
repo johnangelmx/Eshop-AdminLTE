@@ -1,17 +1,23 @@
-// DOM JS
-const modal = document.getElementById('modal-lg');
-
+// Variables DOM
+const modal = document.getElementById('modal-lg'),
+    modalDanger = document.getElementById('modal-danger'),
+    btnAgregar = document.getElementById("btnAgregar"),
+    inputDomicilio = document.getElementById("inputDomicilio"),
+    inputNombres = document.getElementById("inputNombres"),
+    inputApellidos = document.getElementById("inputApellidos"),
+    inputCorreo = document.getElementById("inputCorreo");
 // Verificacion de Inicio Unico
-const data = JSON.parse(localStorage.getItem('sessionId'))
+const
+    data = JSON.parse(localStorage.getItem('sessionId'))
 if (!data) {
     window.location.href = "../../PanelVM/index.html"
 }
 // Variable REGEX
-const regexName = /^[a-zA-Záéíóúñ][a-záéíóúñ]{1,}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,2}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,1}$/,
-    regexLastNames = /^[a-zA-Záéíóúñ][a-záéíóúñ]{1,}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,2}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,1}$/,
-    regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const regexNombre = /^[a-zA-Záéíóúñ][a-záéíóúñ]{1,}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,2}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,1}$/,
+    regexApellidos = /^[a-zA-Záéíóúñ][a-záéíóúñ]{1,}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,2}(?:\s+[a-zA-Záéíóúñ][a-záéíóúñ]{1,}){0,1}$/,
+    regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-// Variables para = DataTable
+// Variables para PLUGIN DataTable
 let dataTable;
 let dataTableIsInitialized = false;
 const dataTableOptions = {
@@ -95,14 +101,14 @@ const listUsers = async () => {
         users.forEach((user, index) => {
             content += `
             <tr>
-                <td>${index + 1}</td>
+                <td>${user.id}</td>
                 <td>${user.nombres}</td>
                 <td>${user.apellidos}</td>
                 <td>${user.correo}</td>
                 <td>${user.domicilio}</td>
                 <td>
-                    <button data-identifier="${index + 1}" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-lg" id="editar"><i class="fas fa-pen"></i></button>
-                    <button data-identifier="${index + 1}" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal-danger" id="eliminar"><i class="fas fa-trash"></i></button>
+                    <button data-identifier="${user.id}" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-lg" id="editar"><i class="fas fa-pen"></i></button>
+                    <button data-identifier="${user.id}" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal-danger" id="eliminar"><i class="fas fa-trash"></i></button>
                 </td>
                 
             </tr>
@@ -135,17 +141,17 @@ const listUsers = async () => {
         // Función para guardar los cambios
         async function guardarCambios() {
             const inputs = [{
-                regex: regexEmail,
+                regex: regexCorreo,
                 value: inputCorreo,
                 errorMessage: "Por favor verifique que el correo esté bien escrito"
             },
                 {
-                    regex: regexName,
+                    regex: regexNombre,
                     value: inputNombres,
                     errorMessage: "Por favor verifique que los nombres estén bien escritos"
                 },
                 {
-                    regex: regexLastNames,
+                    regex: regexApellidos,
                     value: inputApellidos,
                     errorMessage: "Por favor verifique que los apellidos estén bien escritos"
                 }
@@ -196,10 +202,40 @@ const listUsers = async () => {
             }
         }
 
+// Agregar eventos utilizando delegación de eventos
         $('#datatable_users').on('click', '#eliminar', function (event) {
-            const identifier = $(this).data('identifier');
-            console.log(identifier);
+            identifier = $(this).data('identifier');
+
+            // Remover eventos anteriores del botón btnModalEliminar
+            btnModalEliminar.removeEventListener("click", eliminarUsuario);
+
+            // Agregar el evento click al botón btnModalEliminar
+            btnModalEliminar.addEventListener("click", eliminarUsuario);
         });
+
+// Función para eliminar el usuario
+        async function eliminarUsuario() {
+            try {
+                const response = await fetch(`/api/usuarios/${identifier}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer: ${data.acessToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Eliminación exitosa
+                    closeModal();
+                    toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
+                    toastr["success"]("Eliminacion de usuario completada"); // Mostrar el nuevo mensaje de éxito
+                    await recreateDataTable();
+                }
+            } catch (error) {
+                // Manejar el error
+                console.error(error);
+            }
+        }
+
         tableBody_users.innerHTML = content;
 
     } catch
@@ -211,6 +247,8 @@ const listUsers = async () => {
 // Funcion para cerrar el Modal
 function closeModal() {
     $(modal).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
+    $(modalDanger).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
+
 }
 
 // --- EVENTOS ---
