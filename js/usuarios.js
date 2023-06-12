@@ -89,7 +89,7 @@ const obtenerUsuario = async () => {
 // Agregando la información del usuario en la barra de la izquierda
 const addInfoSidebar = async () => {
     let userdata = await obtenerUsuario()
-    usuarioPanelDerecho.innerText = `${userdata.nombres} ${userdata.apellidos}`
+    usuarioPanelDerecho.innerText = `${userdata.nombres}`
 }
 // Ingresando Información a la tabla
 const listUsers = async () => {

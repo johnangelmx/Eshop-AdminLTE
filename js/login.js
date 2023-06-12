@@ -33,10 +33,23 @@ const verifyLogin = async () => {
 
         if (resp.ok) {
             const data = await resp.json();
-            localStorage.setItem('sessionId', JSON.stringify(data));
-
-            toastr.success('¡Operación exitosa!', 'Éxito');
-            window.location.href = "../../PanelVM/pages/dashboard.html";
+            try {
+                let response = await fetch(`/api/usuarios/${data.idUsuario}`, {
+                    headers: {
+                        "Authorization": "Bearer: " + data.acessToken
+                    }
+                });
+                response = await response.json();
+                if (response.status === true && response.rol === "admin") {
+                    localStorage.setItem('sessionId', JSON.stringify(data));
+                    toastr.success('¡Operación exitosa!', 'Éxito');
+                    window.location.href = "../../PanelVM/pages/dashboard.html";
+                } else {
+                    toastr["error"]("Usted no tiene permiso para este ingreso", "Ingreso Invalido")
+                }
+            } catch {
+                toastr["error"]("Por favor verifique sus credenciales", "Ingreso Invalido")
+            }
         }
     } catch (error) {
         toastr["error"]("Por favor verifique sus credenciales", "Ingreso Invalido")

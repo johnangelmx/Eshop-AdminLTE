@@ -21,7 +21,7 @@ const obtenerUsuario = async () => {
 
 const addInfoSidebar = async () => {
     let userdata = await obtenerUsuario()
-    usuarioPanelDerecho.innerText = `${userdata.nombres} ${userdata.apellidos}`
+    usuarioPanelDerecho.innerText = `${userdata.nombres}`
 }
 
 addInfoSidebar();
