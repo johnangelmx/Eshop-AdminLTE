@@ -5,9 +5,7 @@ const modal = document.getElementById('modal-lg'),
     inputDomicilio = document.getElementById("inputDomicilio"),
     inputNombres = document.getElementById("inputNombres"),
     inputApellidos = document.getElementById("inputApellidos"),
-    inputCorreo = document.getElementById("inputCorreo"),
-    check = document.getElementById("check"),
-    stop = document.getElementById("stop");
+    inputCorreo = document.getElementById("inputCorreo");
 // Verificacion de Inicio Unico
 const
     data = JSON.parse(localStorage.getItem('sessionId'))
@@ -95,19 +93,24 @@ const addInfoSidebar = async () => {
 }
 // Ingresando Información a la tabla
 const listUsers = async () => {
-    try {
-        const response = await fetch("/api/usuarios/", {headers: {"Authorization": "Bearer: " + data.acessToken}})
-        const users = await response.json()
 
-        let content = ``;
-        users.forEach((user, index) => {
-            let btnStatus;
-            if (user.status) {
-                btnStatus = `<button data-identifier="${user.id}" class='btn btn-sm btn-success' id="check"><i class='fas fa-check'></i></button>`
-            } else {
-                btnStatus = `<button data-identifier="${user.id}" class='btn btn-sm btn-danger' id="stop"><i class='fas fa-stop'></i></button>`
-            }
-            content += `
+    const response = await fetch("/api/usuarios/", {headers: {"Authorization": "Bearer: " + data.acessToken}})
+    const users = await response.json()
+
+    let content = ``;
+    users.forEach((user, index) => {
+        let btnStatus, btnRol;
+        if (user.status) {
+            btnStatus = `<button data-identifier="${user.id}" class='btn btn-sm btn-success' id="check"><i class='fas fa-check'></i></button>`
+        } else {
+            btnStatus = `<button data-identifier="${user.id}" class='btn btn-sm btn-danger' id="stop"><i class='fas fa-stop'></i></button>`
+        }
+        if (user.rol === "cliente") {
+            btnRol = `<button data-identifier="${user.id}" class='btn btn-sm btn-success' id="cliente"><i class='fas fa-shopping-bag'></i></button>`
+        } else {
+            btnRol = `<button data-identifier="${user.id}" class='btn btn-sm btn-warning' id="admin"><i class='fas fa-hammer'></i></button>`
+        }
+        content += `
             <tr>
                 <td>${user.id}</td>
                 <td>${user.nombres}</td>
@@ -115,7 +118,7 @@ const listUsers = async () => {
                 <td>${user.correo}</td>
                 <td>${user.domicilio}</td>
                 <td>${btnStatus}</td>
-                <td>${user.rol}</td>
+                <td>${btnRol}</td>
                 <td>
                     <button data-identifier="${user.id}" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-lg" id="editar"><i class="fas fa-pen"></i></button>
                     <button data-identifier="${user.id}" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal-danger" id="eliminar"><i class="fas fa-trash"></i></button>
@@ -123,183 +126,240 @@ const listUsers = async () => {
                 
             </tr>
             `
-        });
-        // Variable global para almacenar el identificador
-        let identifier;
+    });
+    // Variable global para almacenar el identificador
+    let identifier;
 
-        // Agregar eventos utilizando delegación de eventos
-        $('#datatable_users').off('click', '#editar').on('click', '#editar', async function (event) {
-            identifier = $(this).data('identifier');
-            const response = await fetch(`/api/usuarios/${identifier}`, {
-                headers: {
-                    "Authorization": "Bearer: " + data.acessToken
-                }
-            });
-            if (response.ok) {
-                const user = await response.json();
-                inputCorreo.value = user.correo;
-                inputNombres.value = user.nombres;
-                inputApellidos.value = user.apellidos;
-                inputDomicilio.value = user.domicilio;
-            } else {
-                redirectLogin();
+    // EDITAR USUARIO
+    $('#datatable_users').off('click', '#editar').on('click', '#editar', async function (event) {
+        identifier = $(this).data('identifier');
+        const response = await fetch(`/api/usuarios/${identifier}`, {
+            headers: {
+                "Authorization": "Bearer: " + data.acessToken
             }
-            btnGuardar.addEventListener("click", async () => {
-                    const inputs = [{
-                        regex: regexCorreo,
-                        value: inputCorreo,
-                        errorMessage: "Por favor verifique que el correo esté bien escrito"
-                    },
-                        {
-                            regex: regexNombre,
-                            value: inputNombres,
-                            errorMessage: "Por favor verifique que los nombres estén bien escritos"
-                        },
-                        {
-                            regex: regexApellidos,
-                            value: inputApellidos,
-                            errorMessage: "Por favor verifique que los apellidos estén bien escritos"
-                        }
-                    ];
-
-                    let isOk = true;
-
-                    inputs.forEach(input => {
-                        if (!input.regex.test(input.value.value.trim())) {
-                            toastr.remove();
-                            toastr["error"](input.errorMessage, "Guardado inválido");
-                            isOk = false;
-                        }
-                    });
-
-                    if (isOk) {
-                        const params = {
-                            domicilio: `${inputDomicilio.value}`,
-                            nombres: `${inputNombres.value}`,
-                            apellidos: `${inputApellidos.value}`,
-                            correo: `${inputCorreo.value}`,
-                        };
-
-                        const queryParams = new URLSearchParams(params).toString();
-                        const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
-
-                        const response = await fetch(urlWithParams, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `Bearer: ${data.acessToken}`
-                            }
-                        });
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            // Manejar la respuesta exitosa
-                            closeModal();
-                            toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
-                            toastr["success"]("Actualización completada"); // Mostrar el nuevo mensaje de éxito
-                            await recreateDataTable();
-                        } else {
-
-                        }
-
-                    }
-                }
-            )
         });
+        if (response.ok) {
+            const user = await response.json();
+            inputCorreo.value = user.correo;
+            inputNombres.value = user.nombres;
+            inputApellidos.value = user.apellidos;
+            inputDomicilio.value = user.domicilio;
+        } else {
+            redirectLogin();
+        }
+        btnGuardar.addEventListener("click", async () => {
+                const inputs = [{
+                    regex: regexCorreo,
+                    value: inputCorreo,
+                    errorMessage: "Por favor verifique que el correo esté bien escrito"
+                },
+                    {
+                        regex: regexNombre,
+                        value: inputNombres,
+                        errorMessage: "Por favor verifique que los nombres estén bien escritos"
+                    },
+                    {
+                        regex: regexApellidos,
+                        value: inputApellidos,
+                        errorMessage: "Por favor verifique que los apellidos estén bien escritos"
+                    }
+                ];
 
+                let isOk = true;
 
-        // ELIMINAR
-        $('#datatable_users').off('click', '#eliminar').on('click', '#eliminar', async function (event) {
-            identifier = $(this).data('identifier');
-            btnModalEliminar.addEventListener("click", async () => {
-                const response = await fetch(`/api/usuarios/${identifier}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer: ${data.acessToken}`
+                inputs.forEach(input => {
+                    if (!input.regex.test(input.value.value.trim())) {
+                        toastr.remove();
+                        toastr["error"](input.errorMessage, "Guardado inválido");
+                        isOk = false;
                     }
                 });
 
-                if (response.ok) {
-                    closeModal();
-                    toastr.remove();
-                    toastr["success"]("Eliminación de usuario completada");
-                    await recreateDataTable();
-                } else {
-                    redirectLogin();
+                if (isOk) {
+                    const params = {
+                        domicilio: `${inputDomicilio.value}`,
+                        nombres: `${inputNombres.value}`,
+                        apellidos: `${inputApellidos.value}`,
+                        correo: `${inputCorreo.value}`,
+                    };
+
+                    const queryParams = new URLSearchParams(params).toString();
+                    const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+                    const response = await fetch(urlWithParams, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer: ${data.acessToken}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Manejar la respuesta exitosa
+                        closeModal();
+                        toastr.remove(); // Eliminar todos los mensajes de Toastr visibles y ocultos
+                        toastr["success"]("Actualización completada"); // Mostrar el nuevo mensaje de éxito
+                        await recreateDataTable();
+                    } else {
+                        redirectLogin();
+                    }
+
                 }
-            })
-        });
+            }
+        )
+    });
 
 
-        // Funcion cambiar estatus del usuario a activo
-        $('#datatable_users').off('click', '#check').on('click', '#check', async function (event) {
-            const button = $(this);
-            const identifier = button.data('identifier');
-            const queryParams = new URLSearchParams({status: 'false'});
-            const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
-
-            const response = await fetch(urlWithParams, {
-                method: 'PUT',
+    // ELIMINAR
+    $('#datatable_users').off('click', '#eliminar').on('click', '#eliminar', async function (event) {
+        identifier = $(this).data('identifier');
+        btnModalEliminar.addEventListener("click", async () => {
+            const response = await fetch(`/api/usuarios/${identifier}`, {
+                method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer: ${data.acessToken}`
                 }
             });
 
             if (response.ok) {
+                closeModal();
                 toastr.remove();
-                toastr["success"]("Cambio de estatus completado");
-
-                // Actualizar el botón con la clase y el contenido correspondientes
-                button
-                    .removeClass('btn-success')
-                    .addClass('btn-danger')
-                    .attr('id', 'stop')
-                    .html(`<i class='fas fa-stop'></i>`);
-
+                toastr["success"]("Eliminación de usuario completada");
                 await recreateDataTable();
             } else {
                 redirectLogin();
             }
-        });
+        })
+    });
 
 
-        // Funcion cambiar estatus del usuario a inactivo
-        $('#datatable_users').off('click', '#stop').on('click', '#stop', async function (event) {
-            const button = $(this);
-            const identifier = button.data('identifier');
-            const queryParams = new URLSearchParams({status: 'true'});
-            const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+    // CHECK STATUS
+    $('#datatable_users').off('click', '#check').on('click', '#check', async function (event) {
+        const button = $(this);
+        const identifier = button.data('identifier');
+        const queryParams = new URLSearchParams({status: 'false'});
+        const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
 
-            const response = await fetch(urlWithParams, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer: ${data.acessToken}`
-                }
-            });
-
-            if (response.ok) {
-                toastr.remove();
-                toastr["success"]("Cambio de estatus completado");
-
-                // Actualizar el botón con la clase y el contenido correspondientes
-                button
-                    .removeClass('btn-danger')
-                    .addClass('btn-success')
-                    .attr('id', 'check')
-                    .html(`<i class='fas fa-check'></i>`);
-
-                await recreateDataTable();
-            } else {
-                redirectLogin();
+        const response = await fetch(urlWithParams, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer: ${data.acessToken}`
             }
         });
 
+        if (response.ok) {
+            toastr.remove();
+            toastr["success"]("Cambio de estatus completado");
 
-        tableBody_users.innerHTML = content;
+            // Actualizar el botón con la clase y el contenido correspondientes
+            button
+                .removeClass('btn-success')
+                .addClass('btn-danger')
+                .attr('id', 'stop')
+                .html(`<i class='fas fa-stop'></i>`);
 
-    } catch
-        (e) {
-        console.log(e);
-    }
+            await recreateDataTable();
+        } else {
+            redirectLogin();
+        }
+    });
+
+
+    // STOP STATUS
+    $('#datatable_users').off('click', '#stop').on('click', '#stop', async function (event) {
+        const button = $(this);
+        const identifier = button.data('identifier');
+        const queryParams = new URLSearchParams({status: 'true'});
+        const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+        const response = await fetch(urlWithParams, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer: ${data.acessToken}`
+            }
+        });
+
+        if (response.ok) {
+            toastr.remove();
+            toastr["success"]("Cambio de estatus completado");
+
+            // Actualizar el botón con la clase y el contenido correspondientes
+            button
+                .removeClass('btn-danger')
+                .addClass('btn-success')
+                .attr('id', 'check')
+                .html(`<i class='fas fa-check'></i>`);
+
+            await recreateDataTable();
+        } else {
+            redirectLogin();
+        }
+    });
+
+    // CHANGE CLIENT TO ADMIN
+    $('#datatable_users').off('click', '#cliente').on('click', '#cliente', async function (event) {
+        const button = $(this);
+        const identifier = button.data('identifier');
+        const queryParams = new URLSearchParams({rol: 'admin'});
+        const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+        const response = await fetch(urlWithParams, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer: ${data.acessToken}`
+            }
+        });
+
+        if (response.ok) {
+            toastr.remove();
+            toastr["success"]("Cambio de rol completado");
+
+            // Actualizar el botón con la clase y el contenido correspondientes
+            button
+                .removeClass('btn-success')
+                .addClass('btn-warning')
+                .attr('id', 'admin')
+                .html(`<i class='fas fa-hammer'></i>`);
+
+            await recreateDataTable();
+        } else {
+            redirectLogin();
+        }
+    });
+    // CHANGE ADMIN TO CLIENT
+    $('#datatable_users').off('click', '#admin').on('click', '#admin', async function (event) {
+        const button = $(this);
+        const identifier = button.data('identifier');
+        const queryParams = new URLSearchParams({rol: 'cliente'});
+        const urlWithParams = `/api/usuarios/${identifier}?${queryParams}`;
+
+        const response = await fetch(urlWithParams, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer: ${data.acessToken}`
+            }
+        });
+
+        if (response.ok) {
+            toastr.remove();
+            toastr["success"]("Cambio de rol completado");
+
+            // Actualizar el botón con la clase y el contenido correspondientes
+            button
+                .removeClass('btn-warning')
+                .addClass('btn-success')
+                .attr('id', 'cliente')
+                .html(`<i class='fas fa-shopping-bag'></i>`);
+
+            await recreateDataTable();
+        } else {
+            redirectLogin();
+        }
+    });
+
+
+    tableBody_users.innerHTML = content;
+
 }
 
 // Funcion para cerrar el Modal
