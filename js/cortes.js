@@ -48,7 +48,7 @@ let inputURL = document.getElementById('inputURL');
 let dataTable;
 let dataTableIsInitialized = false;
 const dataTableOptions = {
-    "pageLength": 5,
+    "pageLength": 8,
     "destroy": true,
     "language": {
         "decimal": "",

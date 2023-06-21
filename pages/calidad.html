@@ -4,18 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Vianda Market</title>
-
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
-    <!-- IonIcons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="../css/adminlte.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../plugins/toastr/toastr.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <!-- favicon -->
     <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <!-- Custom JS -->
+    <script src="../js/calidad.js" defer></script>
+    <link rel="stylesheet" href="../css/panelControlCortes.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -34,38 +40,19 @@
                 <a href="#" class="nav-link">Contacto</a>
             </li>
         </ul>
-
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
-            <!-- Notifications Dropdown Menu -->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="far fa-bell"></i>
-                    <span class="badge badge-warning navbar-badge">15</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">15 Notifications</span>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="fas fa-envelope mr-2"></i> 4 new messages
-                        <span class="float-right text-muted text-sm">3 mins</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="fas fa-users mr-2"></i> 8 friend requests
-                        <span class="float-right text-muted text-sm">12 hours</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="fas fa-file mr-2"></i> 3 new reports
-                        <span class="float-right text-muted text-sm">2 days</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                </div>
+            <li class="nav-item d-none d-sm-inline-block">
+                <button type="button" class="btn btn-block bg-gradient-info" data-toggle="modal" data-target="#modal-lg"
+                        id="btnNuevaCalidad">Crear Nueva Calidad
+                </button>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="#" class="nav-link" id="cerrarSesion">Cerrar Sesion</a>
             </li>
         </ul>
     </nav>
+
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
@@ -79,10 +66,10 @@
             <!-- Sidebar user panel (optional) -->
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
-                    <img src="../img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    <img src="../img/user.png" class="img-circle elevation-2" alt="User Image">
                 </div>
                 <div class="info">
-                    <a href="#" class="d-block">Alexander Pierce</a>
+                    <a href="#" class="d-block" id="usuarioPanelDerecho"></a>
                 </div>
             </div>
 
@@ -94,7 +81,7 @@
                          with font-awesome or any other icon font library -->
                     <li class="nav-header">HERRAMIENTAS</li>
                     <li class="nav-item">
-                        <a href="./dashboard.html" class="nav-link active">
+                        <a href="./dashboard.html" class="nav-link">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
                             <p>
                                 Panel Control
@@ -118,7 +105,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="./calidad.html" class="nav-link">
+                        <a href="./calidad.html" class="nav-link active">
                             <i class="nav-icon fas fa-id-badge"></i>
                             <p>
                                 Calidad
@@ -144,25 +131,127 @@
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        <div class="content-header">
+        <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">Bienvenido al panel de control</h1>
-                    </div><!-- /.col -->
+                        <h1>Tabla de Calidades</h1>
+                    </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="dashboard.html">Inicio</a></li>
-                            <li class="breadcrumb-item active">Panel de control</li>
+                            <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+                            <li class="breadcrumb-item active">Usuarios</li>
                         </ol>
-                    </div><!-- /.col -->
-                </div><!-- /.row -->
+                    </div>
+                </div>
             </div><!-- /.container-fluid -->
-        </div>
-        <!-- /.content-header -->
+        </section>
 
         <!-- Main content -->
-        
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Tabla con calidades registrada</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="datatable_calidad" class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Marca</th>
+                                        <th>Pais</th>
+                                        <th>Descripcion</th>
+                                        <th>Calidad</th>
+                                        <th>Opciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tableBody_calidad">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+            <!--  MODAL EDICION  -->
+            <div class="modal fade" id="modal-lg">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Datos de la calidad</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="inputNombreMarca">Nombre de la marca</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa el nombre de la marca" id="inputNombreMarca">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPais">Pais</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa el pais" id="inputPais">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputDescripcion">Descripcion</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa la descripcion" id="inputDescripcion">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputCalidad">Calidad</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa la calidad" id="inputCalidad">
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-primary" id="btnGuardar">Guardar Cambios</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+            <div class="modal fade" id="modal-danger">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-danger">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Eliminacion Absoluta</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Está convencido de eliminar esta calidad, la eliminación es absoluta y no puede
+                                revertirse.</p>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-light" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-outline-light" id="btnModalEliminar">Eliminar Calidad
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+        </section>
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
@@ -186,18 +275,28 @@
 
 <!-- REQUIRED SCRIPTS -->
 
+<!--&lt;!&ndash; Panel &ndash;&gt;-->
+<!--<script src="../js/usuarios.js"></script>-->
 <!-- jQuery -->
 <script src="../plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap -->
 <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE -->
 <script src="../js/adminlte.js"></script>
-
-<!-- OPTIONAL SCRIPTS -->
-<script src="../plugins/chart.js/Chart.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<!--<script src="./js/demo.js"></script>-->
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="../js/dashboardLTE.js"></script>
+<!-- Toastr JS -->
+<script src="../plugins/toastr/toastr.min.js" async></script>
+<!-- DataTables  & Plugins -->
+<script src="../plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="../plugins/jszip/jszip.min.js"></script>
+<script src="../plugins/pdfmake/pdfmake.min.js"></script>
+<script src="../plugins/pdfmake/vfs_fonts.js"></script>
+<script src="../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 </body>
 </html>
