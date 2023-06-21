@@ -28,6 +28,7 @@ let inputDescripcion = document.getElementById("inputDescripcion");
 let inputCalidad = document.getElementById("inputCalidad");
 const btnGuardar = document.getElementById("btnGuardar");
 const btnNuevaCalidad = document.getElementById("btnNuevaCalidad");
+const btnGuardarNewItem = document.getElementById("btnGuardarNewItem");
 // REGEX variables
 const regexNombreMarca = /^.{1,45}$/;
 const regexPais = /^.{1,45}$/;
@@ -209,7 +210,7 @@ listUsers = async () => {
             if (response.ok) {
                 $('#modal-danger').modal('hide');
                 toastr.remove();
-                toastr["success"]("Eliminación de usuario completada");
+                toastr["success"]("Eliminación de calidad completada");
                 await recreateDataTable();
             } else {
                 redirectLogin();
@@ -218,11 +219,6 @@ listUsers = async () => {
     });
 
     $(document).on("click", "#btnNuevaCalidad", function () {
-        inputNombreMarca.value = "";
-        inputPais.value = "";
-        inputDescripcion.value = "";
-        inputCalidad.value = "";
-
         const guardarHandler = async () => {
             if (checkInputs()) {
                 try {
@@ -234,15 +230,15 @@ listUsers = async () => {
                             'Authorization': `Bearer: ${data.acessToken}`
                         },
                         body: JSON.stringify({
-                            marca: `${inputNombreMarca.value}`,
-                            pais: `${inputPais.value}`,
-                            descripcion_marca: `${inputDescripcion.value}`,
-                            calidad: `${inputCalidad.value}`
+                            marca: `${inputNombreMarcaNewItem.value}`,
+                            pais: `${inputPaisNewItem.value}`,
+                            descripcion_marca: `${inputDescripcionNewItem.value}`,
+                            calidad: `${inputCalidadNewItem.value}`
                         })
                     });
 
                     if (response.ok) {
-                        $('#modal-lg').modal('hide');
+                        $('#modal-newItem').modal('hide');
                         toastr.remove();
                         toastr["success"]("Corte agregado con éxito!");
                         await recreateDataTable();
@@ -256,7 +252,7 @@ listUsers = async () => {
             }
         };
 
-        $("#btnGuardar").off("click").on("click", guardarHandler);
+        $("#btnGuardarNewItem").off("click").on("click", guardarHandler);
     });
 
     tableBody_calidad.innerHTML = content;
@@ -266,22 +262,22 @@ const checkInputs = () => {
     const inputs = [
         {
             regex: regexNombreMarca,
-            value: inputNombreMarca.value,
+            value: inputNombreMarcaNewItem.value,
             errorMessage: "Por favor verifique que el nombre esté bien escrito"
         },
         {
             regex: regexPais,
-            value: inputPais.value,
+            value: inputPaisNewItem.value,
             errorMessage: "Por favor verifique que el pais esté bien escrito"
         },
         {
             regex: regexDescripcion,
-            value: inputDescripcion.value,
+            value: inputDescripcionNewItem.value,
             errorMessage: "Por favor verifique que la descripción esté bien escrito"
         },
         {
             regex: regexCalidad,
-            value: inputCalidad.value,
+            value: inputCalidadNewItem.value,
             errorMessage: "Por favor verifique que la calidad esté bien escrito"
         }
     ];

@@ -251,7 +251,7 @@ const listUsers = async () => {
             if (response.ok) {
                 closeModal();
                 toastr.remove();
-                toastr["success"]("Eliminación de usuario completada");
+                toastr["success"]("Eliminación de corte completada");
                 await recreateDataTable();
             } else {
                 redirectLogin();
@@ -323,14 +323,6 @@ const listUsers = async () => {
         }
     });
     $(document).on("click", "#btnNuevoCorte", function () {
-        inputNombre.value = "";
-        inputPrecio.value = "";
-        inputDescripcion.value = "";
-        inputDisponibilidad.value = "";
-        inputCantidad.value = "";
-        inputIdCalidades.value = "";
-        inputURL.value = "";
-
         const guardarHandler = async () => {
             if (checkInputs()) {
                 try {
@@ -342,13 +334,13 @@ const listUsers = async () => {
                             'Authorization': `Bearer: ${data.acessToken}`
                         },
                         body: JSON.stringify({
-                            nombre: `${inputNombre.value}`,
-                            precio: parseFloat(inputPrecio.value),
-                            descripcion_corte: `${inputDescripcion.value}`,
-                            disponibilidad: (inputDisponibilidad.value === 'disponible'),
-                            cantidad_disponible: parseInt(inputCantidad.value),
-                            idcalidades: parseInt(inputIdCalidades.value),
-                            imagen: `${inputURL.value}`
+                            nombre: `${inputNombreNewItem.value}`,
+                            precio: parseFloat(inputPrecioNewItem.value),
+                            descripcion_corte: `${inputDescripcionNewItem.value}`,
+                            disponibilidad: (inputDisponibilidadNewItem.value === 'disponible'),
+                            cantidad_disponible: parseInt(inputCantidadNewItem.value),
+                            idcalidades: parseInt(inputIdCalidadesNewItem.value),
+                            imagen: `${inputURLNewItem.value}`
                         })
                     });
 
@@ -367,7 +359,7 @@ const listUsers = async () => {
             }
         };
 
-        $("#btnGuardar").off("click").on("click", guardarHandler);
+        $("#btnGuardarNewItem").off("click").on("click", guardarHandler);
     });
 
     tableBody_cortes.innerHTML = content;
@@ -377,37 +369,37 @@ const checkInputs = () => {
     const inputs = [
         {
             regex: regexNombre,
-            value: inputNombre.value,
+            value: inputNombreNewItem.value,
             errorMessage: "Por favor verifique que el nombre esté bien escrito"
         },
         {
             regex: regexPrecio,
-            value: inputPrecio.value,
+            value: inputPrecioNewItem.value,
             errorMessage: "Por favor ingrese un precio válido"
         },
         {
             regex: regexDescripcion,
-            value: inputDescripcion.value,
+            value: inputDescripcionNewItem.value,
             errorMessage: "Por favor verifique que la descripción esté correcta tiene que tener un maximo de 500 caracteres"
         },
         {
             regex: regexDisponibilidad,
-            value: inputDisponibilidad.value,
+            value: inputDisponibilidadNewItem.value,
             errorMessage: "Por favor ingrese una disponibilidad válida"
         },
         {
             regex: regexCantidad,
-            value: inputCantidad.value,
+            value: inputCantidadNewItem.value,
             errorMessage: "Por favor ingrese una cantidad válida"
         },
         {
             regex: regexIdCalidades,
-            value: inputIdCalidades.value,
+            value: inputIdCalidadesNewItem.value,
             errorMessage: "Por favor ingrese un ID calidad válida"
         },
         {
             regex: regexURL,
-            value: inputURL.value,
+            value: inputURLNewItem.value,
             errorMessage: "Por favor ingrese una URL válida"
         }
     ];
@@ -426,7 +418,7 @@ const checkInputs = () => {
 function closeModal() {
     $(modal).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
     $(modalDanger).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap modal
-
+    $(`#modal-newItem`).modal('hide'); // Cierra el modal utilizando el método "hide" de Bootstrap
 }
 
 // Funcion para redireccionar al login

@@ -43,7 +43,8 @@
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <li class="nav-item d-none d-sm-inline-block">
-                <button type="button" class="btn btn-block bg-gradient-info" data-toggle="modal" data-target="#modal-lg"
+                <button type="button" class="btn btn-block bg-gradient-info" data-toggle="modal"
+                        data-target="#modal-newItem"
                         id="btnNuevoCorte">Crear Nuevo Corte
                 </button>
             </li>
@@ -262,6 +263,70 @@
                         <div class="modal-footer justify-content-between">
                             <button type="button" class="btn btn-outline-light" data-dismiss="modal">Cerrar</button>
                             <button type="button" class="btn btn-outline-light" id="btnModalEliminar">Eliminar Corte
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+            <!-- MODAL NUEVO CORTE-->
+            <div class="modal fade" id="modal-newItem">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Datos del corte</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="inputNombreNewItem">Nombre</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa el nombre del corte" id="inputNombreNewItem">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPrecioNewItem">Precio</label>
+                                    <input type="number" class="form-control" value="0.00" step="0.01" min="0"
+                                           id="inputPrecioNewItem"
+                                           placeholder="Ingrese el precio"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputDescripcionNewItem">Descripción</label>
+                                    <textarea class="form-control" id="inputDescripcionNewItem"
+                                              placeholder="Ingrese la descripción"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputDisponibilidadNewItem">Disponibilidad</label>
+                                    <select class="form-control" id="inputDisponibilidadNewItem">
+                                        <option value="disponible">Disponible</option>
+                                        <option value="no-disponible">No disponible</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputCantidadNewItem">Cantidad</label>
+                                    <input type="number" class="form-control" id="inputCantidadNewItem"
+                                           placeholder="Ingrese la cantidad disponibilidad" step="1" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputIdCalidadesNewItem">ID Calidad</label>
+                                    <input type="number" class="form-control" id="inputIdCalidadesNewItem"
+                                           placeholder="Ingrese el ID de calidad" step="1" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputURLNewItem">URL de la imagen</label>
+                                    <input type="url" class="form-control" id="inputURLNewItem"
+                                           placeholder="Ingrese la URL">
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-primary" id="btnGuardarNewItem">Guardar Cambios
                             </button>
                         </div>
                     </div>

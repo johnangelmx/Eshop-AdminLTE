@@ -43,7 +43,7 @@
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <li class="nav-item d-none d-sm-inline-block">
-                <button type="button" class="btn btn-block bg-gradient-info" data-toggle="modal" data-target="#modal-lg"
+                <button type="button" class="btn btn-block bg-gradient-info" data-toggle="modal" data-target="#modal-newItem"
                         id="btnNuevaCalidad">Crear Nueva Calidad
                 </button>
             </li>
@@ -244,6 +244,51 @@
                             <button type="button" class="btn btn-outline-light" data-dismiss="modal">Cerrar</button>
                             <button type="button" class="btn btn-outline-light" id="btnModalEliminar">Eliminar Calidad
                             </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+            <!--  MODAL NUEVA CALIDAD  -->
+            <div class="modal fade" id="modal-newItem">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Datos de la calidad</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="inputNombreMarca">Nombre de la marca</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa el nombre de la marca" id="inputNombreMarcaNewItem">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPais">Pais</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa el pais" id="inputPaisNewItem">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputDescripcion">Descripcion</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa la descripcion" id="inputDescripcionNewItem">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputCalidad">Calidad</label>
+                                    <input type="email" class="form-control"
+                                           placeholder="Ingresa la calidad" id="inputCalidadNewItem">
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-primary" id="btnGuardarNewItem">Guardar Cambios</button>
                         </div>
                     </div>
                     <!-- /.modal-content -->
