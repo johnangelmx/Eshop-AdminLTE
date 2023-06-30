@@ -74,6 +74,7 @@ const listUsers = async () => {
                 <td>${pedido.id_pedido}</td>
                 <td>${pedido.nombre}</td>
                 <td>${pedido.precio}</td>
+                <td>${pedido.gramaje}</td>
                 <td>${pedido.cantidad}</td>
                 <td>${btnStatus}</td>
                 <td>${pedido.fechaGuardado}</td>
